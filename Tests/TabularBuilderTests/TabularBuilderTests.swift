@@ -129,4 +129,27 @@ struct TabularBuilderTests {
         #expect(usersDF.columns.count == 2)
         #expect(adminsDF.columns.count == 3)
     }
+
+    /// Tests the `disable` method for conditional column creation.
+    ///
+    /// Validates that columns are only created when the `disable` condition is not met
+    /// by the first object in the dataset. The role column should only appear for
+    /// admin users but not for regular users, demonstrating data group-based column creation.
+    @Test func resultBuilderDisable() async throws {
+        let users = User.sample.filter { $0.role == .user }
+        let admins = User.sample.filter { $0.role == .admin }
+
+        @TabularColumnBuilder<User> var columns: [AnyTabularColumn<User>?] {
+            TabularColumn(name: "name", keyPath: \.name)
+            TabularColumn(name: "age", keyPath: \.age)
+            TabularColumn(name: "role", keyPath: \.role)
+                .disable { $0.role == .user }
+        }
+
+        let usersDF = User.makeDataFrame(objects: users, anyColumns: columns)
+        let adminsDF = User.makeDataFrame(objects: admins, anyColumns: columns)
+
+        #expect(usersDF.columns.count == 2)
+        #expect(adminsDF.columns.count == 3)
+    }
 }

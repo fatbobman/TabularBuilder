@@ -230,4 +230,18 @@ public struct TabularColumn<ObjectType, ValueType, OutputType> {
         column.when = condition
         return column
     }
+
+    /// Disables the column for a given condition.
+    ///
+    /// This method returns a new column instance that will not be created when the specified
+    /// condition is met.
+    ///
+    /// - Parameter condition: The condition function that determines whether to disable the column
+    /// - Returns: A new `TabularColumn` instance with the updated creation condition
+    public func disable(_ condition: @escaping (ObjectType) -> Bool) -> Self {
+        var column = self
+        column.when = { object in !condition(object)
+        }
+        return column
+    }
 }
