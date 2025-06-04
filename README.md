@@ -151,6 +151,19 @@ let dataFrame = Student.makeDataFrame(objects: students) {
 }
 ```
 
+Disable columns for certain conditions(when the condition is met, the column will not be created):
+
+```swift
+let dataFrame = Student.makeDataFrame(objects: students) {
+    TabularColumn(name: "Name", keyPath: \.name)
+    TabularColumn(name: "Age", keyPath: \.age)
+    
+    // Only include this column for high-performing student groups
+    TabularColumn(name: "Honors", keyPath: \.score, mapping: { $0 > 90 ? "Yes" : "No" })
+        .disable { $0.score < 85 } // Only create this column if first student has score < 85
+}
+```
+
 ### Working with Optional Values
 
 Handle optional properties gracefully:
