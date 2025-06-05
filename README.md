@@ -327,4 +327,11 @@ TabularBuilder is available under the MIT license. See the LICENSE file for more
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-[![Buy Me A Coffee](https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png)](https://buymeacoffee.com/fatbobman)
+## Support the project
+
+- [🎉 Subscribe to my Swift Weekly](https://weekly.fatbobman.com)
+- [☕️ Buy Me A Coffee](https://buymeacoffee.com/fatbobman)
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=fatbobman/TabularBuilder&type=Date)](https://star-history.com/#fatbobman/TabularBuilder&Date)
