@@ -39,6 +39,9 @@ public struct AnyTabularColumn<ObjectType> {
     /// generic types of the original `TabularColumn`.
     private let _make: ([ObjectType]) -> AnyColumn?
 
+    /// The closure used to determine if the column should be created for a given object.
+    private let _when: (ObjectType) -> Bool
+
     /// Creates a new `AnyTabularColumn` instance by wrapping a `TabularColumn`.
     ///
     /// This initializer performs type erasure on the provided `TabularColumn`,
@@ -56,6 +59,8 @@ public struct AnyTabularColumn<ObjectType> {
             }
             return column.eraseToAnyColumn()
         }
+
+        _when = column.when
     }
 
     /// Creates a type-erased column from an array of objects.
@@ -69,5 +74,13 @@ public struct AnyTabularColumn<ObjectType> {
     /// fails.
     public func makeColumn(objects: [ObjectType]) -> AnyColumn? {
         _make(objects)
+    }
+
+    /// Determines if the column should be created for a given object.
+    ///
+    /// - Parameter object: The object to check.
+    /// - Returns: `true` if the column should be created, `false` otherwise.
+    public func shouldCreate(object: ObjectType) -> Bool {
+        _when(object)
     }
 }

@@ -241,7 +241,7 @@ Result builder that enables declarative column definition syntax:
 
 ```swift
 @TabularColumnBuilder<Student>
-var columns: [AnyTabularColumn<Student>?] {
+var columns: [AnyTabularColumn<Student>] {
     TabularColumn(name: "Name", keyPath: \.name)
     TabularColumn(name: "Age", keyPath: \.age)
     

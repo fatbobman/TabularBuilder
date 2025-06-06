@@ -136,7 +136,7 @@ Result builder that enables declarative column definition syntax similar to Swif
 
 ```swift
 @TabularColumnBuilder<Student>
-var columns: [AnyTabularColumn<Student>?] {
+var columns: [AnyTabularColumn<Student>] {
     TabularColumn(name: "Name", keyPath: \.name)
     TabularColumn(name: "Age", keyPath: \.age)
     

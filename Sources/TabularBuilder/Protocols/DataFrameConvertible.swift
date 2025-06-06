@@ -56,7 +56,7 @@ public protocol DataFrameConvertible {
     ///   - anyColumns: An array of optional `AnyTabularColumn` instances defining the columns to
     /// include
     /// - Returns: A `DataFrame` containing the converted tabular data
-    static func makeDataFrame(objects: [Self], anyColumns: [AnyTabularColumn<Self>?]) -> DataFrame
+    static func makeDataFrame(objects: [Self], anyColumns: [AnyTabularColumn<Self>]) -> DataFrame
 
     /// Converts an array of objects to a DataFrame using result builder syntax.
     ///
@@ -70,7 +70,7 @@ public protocol DataFrameConvertible {
     /// - Returns: A `DataFrame` containing the converted tabular data
     static func makeDataFrame(
         objects: [Self],
-        @TabularColumnBuilder<Self> _ columns: () -> [AnyTabularColumn<Self>?]) -> DataFrame
+        @TabularColumnBuilder<Self> _ columns: () -> [AnyTabularColumn<Self>]) -> DataFrame
 }
 
 extension DataFrameConvertible {
@@ -90,10 +90,15 @@ extension DataFrameConvertible {
     /// - Returns: A `DataFrame` containing the converted tabular data
     public static func makeDataFrame(
         objects: [Self],
-        anyColumns: [AnyTabularColumn<Self>?]) -> DataFrame
+        anyColumns: [AnyTabularColumn<Self>]) -> DataFrame
     {
-        let columns = anyColumns.compactMap { $0?.makeColumn(objects: objects) }
-        return DataFrame(columns: columns)
+        guard let firstObject = objects.first else { return DataFrame() }
+
+        let validColumns = anyColumns
+            .filter { $0.shouldCreate(object: firstObject) }
+            .compactMap { $0.makeColumn(objects: objects) }
+
+        return DataFrame(columns: validColumns)
     }
 
     /// Default implementation for converting objects to DataFrame using result builder syntax.
@@ -111,7 +116,7 @@ extension DataFrameConvertible {
     /// - Returns: A `DataFrame` containing the converted tabular data
     public static func makeDataFrame(
         objects: [Self],
-        @TabularColumnBuilder<Self> _ columns: () -> [AnyTabularColumn<Self>?]) -> DataFrame
+        @TabularColumnBuilder<Self> _ columns: () -> [AnyTabularColumn<Self>]) -> DataFrame
     {
         // Delegate to the array-based implementation to avoid duplicating business logic
         makeDataFrame(objects: objects, anyColumns: columns())

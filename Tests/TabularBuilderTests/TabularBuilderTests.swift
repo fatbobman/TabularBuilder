@@ -116,7 +116,7 @@ struct TabularBuilderTests {
         let users = User.sample.filter { $0.role == .user }
         let admins = User.sample.filter { $0.role == .admin }
 
-        @TabularColumnBuilder<User> var columns: [AnyTabularColumn<User>?] {
+        @TabularColumnBuilder<User> var columns: [AnyTabularColumn<User>] {
             TabularColumn(name: "name", keyPath: \.name)
             TabularColumn(name: "age", keyPath: \.age)
             TabularColumn(name: "role", keyPath: \.role)
@@ -139,7 +139,7 @@ struct TabularBuilderTests {
         let users = User.sample.filter { $0.role == .user }
         let admins = User.sample.filter { $0.role == .admin }
 
-        @TabularColumnBuilder<User> var columns: [AnyTabularColumn<User>?] {
+        @TabularColumnBuilder<User> var columns: [AnyTabularColumn<User>] {
             TabularColumn(name: "name", keyPath: \.name)
             TabularColumn(name: "age", keyPath: \.age)
             TabularColumn(name: "role", keyPath: \.role)
@@ -151,5 +151,45 @@ struct TabularBuilderTests {
 
         #expect(usersDF.columns.count == 2)
         #expect(adminsDF.columns.count == 3)
+    }
+
+    /// Tests the `AnyTabularColumn` type in the result builder.
+    ///
+    /// Validates that the `AnyTabularColumn` type correctly handles optional columns
+    /// by converting them to `AnyTabularColumn` if they exist, or a disabled column if they don't.
+    @Test func resultBuilderAnyTabularColumnOptional() async throws {
+        let users = User.sample
+        let optionalColumn: TabularColumn<User, Int, String>? = nil
+        let df = User.makeDataFrame(objects: users) {
+            TabularColumn(name: "name", keyPath: \.name)
+            optionalColumn
+        }
+
+        #expect(df.columns.count == 1)
+        #expect(df.columns[0].name == "name")
+        #expect(df.rows.count == 3)
+    }
+
+    /// Tests the `for-in` loop in the result builder.
+    ///
+    /// Validates that the `for-in` loop correctly creates multiple columns from an array
+    /// of TabularColumn objects.
+    @Test func resultBuilderForIn() async throws {
+        let users = User.sample
+        let columns: [AnyTabularColumn<User>] = [
+            AnyTabularColumn(TabularColumn(name: "name", keyPath: \.name)),
+            AnyTabularColumn(TabularColumn(name: "age", keyPath: \.age)),
+        ]
+
+        let df = User.makeDataFrame(objects: users) {
+            for column in columns {
+                column
+            }
+        }
+
+        #expect(df.columns.count == 2)
+        #expect(df.columns[0].name == "name")
+        #expect(df.columns[1].name == "age")
+        #expect(df.rows.count == 3)
     }
 }

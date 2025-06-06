@@ -17,7 +17,7 @@ import Foundation
 /// Usage example:
 /// ```swift
 /// @TabularColumnBuilder<MyObject>
-/// var columns: [AnyTabularColumn<MyObject>?] {
+/// var columns: [AnyTabularColumn<MyObject>] {
 ///     TabularColumn("Name", value: \.name)
 ///     TabularColumn("Age", value: \.age)
 ///     if showOptionalColumn {
@@ -36,7 +36,7 @@ public enum TabularColumnBuilder<ObjectType> {
     /// objects
     /// - Returns: A flattened array of optional AnyTabularColumn objects
     public static func buildBlock(
-        _ components: [AnyTabularColumn<ObjectType>?]...) -> [AnyTabularColumn<ObjectType>?]
+        _ components: [AnyTabularColumn<ObjectType>]...) -> [AnyTabularColumn<ObjectType>]
     {
         components.flatMap(\.self)
     }
@@ -49,7 +49,7 @@ public enum TabularColumnBuilder<ObjectType> {
     /// - Parameter column: A TabularColumn with any Content and SortComparator types
     /// - Returns: An array containing the wrapped column as AnyTabularColumn
     public static func buildExpression(
-        _ column: TabularColumn<ObjectType, some Any, some Any>) -> [AnyTabularColumn<ObjectType>?]
+        _ column: TabularColumn<ObjectType, some Any, some Any>) -> [AnyTabularColumn<ObjectType>]
     {
         [AnyTabularColumn(column)]
     }
@@ -62,9 +62,9 @@ public enum TabularColumnBuilder<ObjectType> {
     /// - Parameter columns: An array of AnyTabularColumn objects
     /// - Returns: An array of optional AnyTabularColumn objects
     public static func buildExpression(
-        _ columns: [AnyTabularColumn<ObjectType>]) -> [AnyTabularColumn<ObjectType>?]
+        _ columns: [AnyTabularColumn<ObjectType>]) -> [AnyTabularColumn<ObjectType>]
     {
-        columns.map(Optional.some)
+        columns
     }
 
     /// Builds an expression from a single AnyTabularColumn.
@@ -74,7 +74,7 @@ public enum TabularColumnBuilder<ObjectType> {
     /// - Parameter any: A single AnyTabularColumn object
     /// - Returns: An array containing the AnyTabularColumn
     public static func buildExpression(
-        _ any: AnyTabularColumn<ObjectType>) -> [AnyTabularColumn<ObjectType>?]
+        _ any: AnyTabularColumn<ObjectType>) -> [AnyTabularColumn<ObjectType>]
     {
         [any]
     }
@@ -87,34 +87,9 @@ public enum TabularColumnBuilder<ObjectType> {
     /// - Parameter column: An optional TabularColumn with any Content and SortComparator types
     /// - Returns: An array containing the wrapped column or nil
     public static func buildExpression(
-        _ column: TabularColumn<ObjectType, some Any, some Any>?) -> [AnyTabularColumn<ObjectType>?]
+        _ column: TabularColumn<ObjectType, some Any, some Any>?) -> [AnyTabularColumn<ObjectType>]
     {
-        [column.map(AnyTabularColumn.init)]
-    }
-
-    /// Builds an expression from an optional AnyTabularColumn.
-    ///
-    /// Directly wraps an optional AnyTabularColumn in an array for builder compatibility.
-    ///
-    /// - Parameter any: An optional AnyTabularColumn object
-    /// - Returns: An array containing the optional AnyTabularColumn
-    public static func buildExpression(
-        _ any: AnyTabularColumn<ObjectType>?) -> [AnyTabularColumn<ObjectType>?]
-    {
-        [any]
-    }
-
-    /// Builds an expression from an array of optional AnyTabularColumn objects.
-    ///
-    /// Passes through an array that already matches the builder's expected format.
-    /// This allows for direct inclusion of pre-built column arrays.
-    ///
-    /// - Parameter columns: An array of optional AnyTabularColumn objects
-    /// - Returns: The same array unchanged
-    public static func buildExpression(
-        _ columns: [AnyTabularColumn<ObjectType>?]) -> [AnyTabularColumn<ObjectType>?]
-    {
-        columns
+        column.map { [AnyTabularColumn($0)] } ?? []
     }
 
     /// Handles optional components for conditional expressions.
@@ -125,7 +100,7 @@ public enum TabularColumnBuilder<ObjectType> {
     /// - Parameter component: An optional array of AnyTabularColumn objects
     /// - Returns: The component array or an empty array if nil
     public static func buildOptional(
-        _ component: [AnyTabularColumn<ObjectType>?]?) -> [AnyTabularColumn<ObjectType>?]
+        _ component: [AnyTabularColumn<ObjectType>]?) -> [AnyTabularColumn<ObjectType>]
     {
         component ?? []
     }
@@ -137,8 +112,8 @@ public enum TabularColumnBuilder<ObjectType> {
     ///
     /// - Parameter component: The array from the first (if) branch
     /// - Returns: The component array unchanged
-    public static func buildEither(first component: [AnyTabularColumn<ObjectType>?])
-    -> [AnyTabularColumn<ObjectType>?] {
+    public static func buildEither(first component: [AnyTabularColumn<ObjectType>])
+    -> [AnyTabularColumn<ObjectType>] {
         component
     }
 
@@ -149,8 +124,26 @@ public enum TabularColumnBuilder<ObjectType> {
     ///
     /// - Parameter component: The array from the second (else) branch
     /// - Returns: The component array unchanged
-    public static func buildEither(second component: [AnyTabularColumn<ObjectType>?])
-    -> [AnyTabularColumn<ObjectType>?] {
+    public static func buildEither(second component: [AnyTabularColumn<ObjectType>])
+    -> [AnyTabularColumn<ObjectType>] {
+        component
+    }
+
+    /// Builds an array from a collection of components (for `for-in` loops).
+    ///
+    /// - Parameter components: An array of arrays containing AnyTabularColumn objects
+    /// - Returns: A flattened array of AnyTabularColumn objects
+    public static func buildArray(
+        _ components: [[AnyTabularColumn<ObjectType>]]) -> [AnyTabularColumn<ObjectType>]
+    {
+        components.flatMap(\.self)
+    }
+
+    /// Handles limited availability checks (#available).
+    @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
+    public static func buildLimitedAvailability(
+        _ component: [AnyTabularColumn<ObjectType>]) -> [AnyTabularColumn<ObjectType>]
+    {
         component
     }
 }
